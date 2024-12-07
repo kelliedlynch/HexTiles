@@ -6,20 +6,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Collections;
 
-namespace HexTiles.GameBoard;
+namespace HexTiles;
 
 public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameComponent(game, bounds)
 {
-    public const int Rows = 5;
-    public const int Columns = 5;
+    public readonly int Rows = 5;
+    public readonly int Columns = 5;
 
-    public const int Spacing = 10;
+    public readonly int Spacing = 10;
     private GamePiece _selectedPiece;
     private readonly Bag<GamePiece> _movingPieces = [];
     public GamePiece[,] GamePieces;
     public Rectangle[,] GamePieceRects;
     public Rectangle[,] BoardLocationRects;
-    public IntVector2[,] CenterPoints;
     public IntVector2 TileSize;
     private readonly Random _random = new();
 
@@ -31,7 +30,7 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
     {
         GamePieces = new GamePiece[Columns, Rows];
         var man = Game.Services.GetService<InputManager>();
-        man.TouchEventCompleted += HandleTouchEvent;
+        man.RegisterComponent(this, new List<InputListeners>() { InputListeners.TouchEnded });
         GridFactory.GenerateGrid(this);
     }
 
@@ -94,10 +93,11 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         return null;
     }
 
-    private void HandleTouchEvent(TouchEventArgs args)
+    public override void OnTouchEventEnded(TouchEventArgs args)
     {
         var startPiece = PieceAtScreenPosition(args.TouchDown);
-        var endPiece = PieceAtScreenPosition(args.TouchUp);
+        if (args.TouchUp is null) return;
+        var endPiece = PieceAtScreenPosition((Point)args.TouchUp);
         if (startPiece is null || endPiece is null || startPiece != endPiece) return;
         if (endPiece.Selected)
         {
@@ -129,9 +129,9 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         {
             var tex = Game.Content.Load<Texture2D>("Graphics/" + "rune_slot");
             var spriteBatch = Game.Services.GetService<SpriteBatch>();
-            // spriteBatch.Draw(tex, rect, Color.White);
-            spriteBatch.DrawToLayer(tex, rect, DrawLayer.BoardBackground);
+            spriteBatch.DrawToLayer(tex, rect, LayerDepth + DrawLayer.ObjectIncrement);
         }
+        
         base.Draw(gameTime);
     }
 }

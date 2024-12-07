@@ -5,12 +5,14 @@ using HexTiles.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended.Input.InputListeners;
+using MonoGame.Extended.VectorDraw;
 
 namespace HexTiles;
 
 public class MainGame : Game
 {
-    // private SpriteBatch _spriteBatch;
+
     public IntVector2 ScreenSize = new(600, 1080);
     private const float ElementPadding = 0.02f;
     private const float BattleFieldHeight = 0.38f;
@@ -36,7 +38,6 @@ public class MainGame : Game
         Components.Add(inputManager);
         Services.AddService(inputManager);
 
-
         base.Initialize();
     }
 
@@ -51,33 +52,46 @@ public class MainGame : Game
 
     protected override void BeginRun()
     {
+        var inputManager = Services.GetService<InputManager>();
+        
         var padding = (int)Math.Min(ScreenSize.X * ElementPadding, ScreenSize.Y * ElementPadding);
         BattleFieldContainer = new Container(this);
         BattleFieldContainer.Bounds = new Rectangle(padding, padding, ScreenSize.X - padding * 2, (int)(ScreenSize.Y * BattleFieldHeight));
-        BattleFieldContainer.Debug = true;
+        // BattleFieldContainer.Debug = true;
         
         var battlefield = new Battlefield(this, BattleFieldContainer.Bounds);
+        battlefield.LayerDepth = DrawLayer.FieldBackground;
         battlefield.Debug = true;
         Components.Add(battlefield);
+        Services.AddService(battlefield);
         
         GameBoardContainer = new Container(this);
         GameBoardContainer.Bounds = new Rectangle(padding, padding * 2 + BattleFieldContainer.Bounds.Height, ScreenSize.X - padding * 2, (int)(ScreenSize.Y * GameBoardHeight));
-        GameBoardContainer.Debug = true;
+        // GameBoardContainer.Debug = true;
         
-        var gameBoard = new GameBoard.GameBoard(this, GameBoardContainer.Bounds);
+        var gameBoard = new GameBoard(this, GameBoardContainer.Bounds);
+        gameBoard.LayerDepth = DrawLayer.BoardBackground;
         gameBoard.Debug = true;
         Components.Add(gameBoard);
+        Services.AddService(gameBoard);
         
         DockContainer = new Container(this);
         DockContainer.Bounds = new Rectangle(padding, ScreenSize.Y - padding - (int)(ScreenSize.Y * DockHeight), ScreenSize.X - padding * 2, (int)(ScreenSize.Y * DockHeight));
-        DockContainer.Debug = true;
+        // DockContainer.Debug = true;
+        
         var dock = new DeckDock(this, DockContainer.Bounds);
+        dock.LayerDepth = DrawLayer.DeckDock;
         dock.Debug = true;
         Components.Add(dock);
+        Services.AddService(dock);
+        inputManager.RegisterComponent(dock, new List<InputListeners>{InputListeners.TouchEnded});
 
         var deck = new Deck(this);
         deck.GenerateDeck();
         Components.Add(deck);
+        Services.AddService(deck);
+        deck.DrawHand();
+        dock.LayoutSlots();
         
         var battleManager = new BattleManager(this, gameBoard, battlefield);
         Services.AddService(battleManager);
@@ -117,7 +131,6 @@ public class MainGame : Game
 
     protected override void Draw(GameTime gameTime)
     {
-
         base.Draw(gameTime);
     }
 

@@ -7,12 +7,12 @@ namespace HexTiles;
 public static class GridFactory
 {
     
-    public static void GenerateGrid(GameBoard.GameBoard board)
+    public static void GenerateGrid(GameBoard board)
     {
         var bounds = board.Bounds;
-        var spacing = GameBoard.GameBoard.Spacing;
-        var rows = GameBoard.GameBoard.Rows;
-        var columns = GameBoard.GameBoard.Columns;
+        var spacing = board.Spacing;
+        var rows = board.Rows;
+        var columns = board.Columns;
         var hexMaxWidth = (bounds.Width - spacing * (columns + 1))/ (columns + 0.5) ;
         var hexMaxHeight = (bounds.Height - spacing * (rows + 1))/ (rows * 0.75 + 0.25);
         var widthConstrainedSize = (float)hexMaxWidth / float.Sqrt(3);
@@ -21,7 +21,6 @@ public static class GridFactory
         var tileSize = new IntVector2((int)(radius * float.Sqrt(3)), (int)radius * 2);
         board.TileSize = tileSize;
         
-        board.CenterPoints = new IntVector2[columns, rows];
         board.GamePieceRects = new Rectangle[columns, rows];
         board.BoardLocationRects = new Rectangle[columns, rows];
 
@@ -38,7 +37,6 @@ public static class GridFactory
         {
             for (int i = 0; i < columns; i++)
             {
-                board.CenterPoints[i, j] = new IntVector2(xPos + tileSize.X / 2, yPos + tileSize.Y / 2);
                 board.GamePieceRects[i, j] = new Rectangle(xPos, yPos, tileSize.X, tileSize.Y);
                 board.BoardLocationRects[i, j] = new Rectangle(xPos - spacing / 2, yPos - spacing / 2,
                     tileSize.X + spacing, tileSize.Y + spacing);

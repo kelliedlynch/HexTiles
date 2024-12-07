@@ -17,7 +17,6 @@ public class BattlefieldEntity(Game game) : ExtendedDrawableGameComponent(game)
     public Rectangle HealthBarPosition;
     public Texture2D SpriteTexture;
     // public bool Targeted = false;
-    public TargetIndicator TargetIndicator;
     
     public BattlefieldEntity(Game game, Monster monster) : this(game)
     {
@@ -38,7 +37,6 @@ public class BattlefieldEntity(Game game) : ExtendedDrawableGameComponent(game)
         HealthBarPosition = rect.GetRelativeRectangle(0, 0, rect.Width, _barHeight);
         HealthBar = new UIBar(Game, HealthBarPosition, Monster.CurrentHealth, Monster.MaxHealth);
         Game.Components.Add(HealthBar);
-        TargetIndicator = new TargetIndicator(rect);
     }
 
     public override void Draw(GameTime gameTime)
@@ -48,8 +46,9 @@ public class BattlefieldEntity(Game game) : ExtendedDrawableGameComponent(game)
         
         if (Monster.Targeted)
         {
-            TargetIndicator.Draw(Game, spriteBatch);
+            OutlineComponent();
         }
+        base.Draw(gameTime);
     }
 
     public void OnHealthChanged()

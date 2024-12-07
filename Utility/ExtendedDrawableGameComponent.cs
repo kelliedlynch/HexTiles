@@ -7,8 +7,11 @@ using MonoGame.Extended.Graphics;
 
 namespace HexTiles.Utility;
 
-public class ExtendedDrawableGameComponent(Game game) : DrawableGameComponent(game)
+public abstract class ExtendedDrawableGameComponent(Game game) : DrawableGameComponent(game)
 {
+
+    public float LayerDepth = DrawLayer.GameBackground;
+    
     private static readonly List<Color> DebugColors = new()
     {
         Color.White, Color.Chartreuse, Color.Crimson, Color.Cyan, Color.Magenta, Color.Orange, Color.Pink, Color.Red, Color.Violet, Color.Yellow
@@ -37,6 +40,7 @@ public class ExtendedDrawableGameComponent(Game game) : DrawableGameComponent(ga
     public ExtendedDrawableGameComponent(Game game, Rectangle bounds) : this(game)
     {
         Bounds = bounds;
+        
     }
 
     protected void OutlineComponent()
@@ -46,19 +50,21 @@ public class ExtendedDrawableGameComponent(Game game) : DrawableGameComponent(ga
         pixel.SetData(new[] { Color.White });
         var pos = Bounds.Location.ToIntVector2();
         var size = Bounds.Size.ToIntVector2();
-        spriteBatch.Draw(pixel, new Rectangle(pos.X, pos.Y, size.X, BorderWidth), BorderColor);
+        var layer = (float)Math.Floor(LayerDepth / DrawLayer.LayerIncrement) * DrawLayer.LayerIncrement + DrawLayer.LayerIncrement - DrawLayer.ObjectIncrement;
+        
+        spriteBatch.DrawToLayer(pixel, new Rectangle(pos.X, pos.Y, size.X, BorderWidth), BorderColor, layer);
 
-        spriteBatch.Draw(pixel, new Rectangle(pos.X, pos.Y, BorderWidth, size.Y), BorderColor);
+        spriteBatch.DrawToLayer(pixel, new Rectangle(pos.X, pos.Y, BorderWidth, size.Y), BorderColor, layer);
 
-        spriteBatch.Draw(pixel, new Rectangle(pos.X + size.X - BorderWidth,
+        spriteBatch.DrawToLayer(pixel, new Rectangle(pos.X + size.X - BorderWidth,
             pos.Y,
             BorderWidth,
-            size.Y), BorderColor);
+            size.Y), BorderColor, layer);
 
-        spriteBatch.Draw(pixel, new Rectangle(pos.X,
+        spriteBatch.DrawToLayer(pixel, new Rectangle(pos.X,
             pos.Y + size.Y - BorderWidth,
             size.X,
-            BorderWidth), BorderColor);
+            BorderWidth), BorderColor, layer);
     }
     
     public override void Draw(GameTime gameTime)
@@ -69,5 +75,17 @@ public class ExtendedDrawableGameComponent(Game game) : DrawableGameComponent(ga
         }
         
         base.Draw(gameTime);
+    }
+
+    public virtual void OnTouchEventBegan(TouchEventArgs args)
+    {
+    }
+
+    public virtual void OnTouchEventEnded(TouchEventArgs args)
+    {
+    }
+
+    public virtual void OnTouchEventMoved(TouchEventArgs args)
+    {
     }
 }

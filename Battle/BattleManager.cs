@@ -6,7 +6,7 @@ using MonoGame.Extended.Collections;
 
 namespace HexTiles;
 
-public class BattleManager(Game game, GameBoard.GameBoard board, Battlefield field) : GameComponent(game)
+public class BattleManager(Game game, GameBoard board, Battlefield field) : GameComponent(game)
 {
     private List<Monster> _monsters;
     private Player _player;
@@ -24,7 +24,7 @@ public class BattleManager(Game game, GameBoard.GameBoard board, Battlefield fie
             return _playerTarget;
         }
     }
-    private GameBoard.GameBoard _board = board;
+    private GameBoard _board = board;
     private Battlefield _field = field;
 
     public void InitializeBattle(List<Monster> monsters)

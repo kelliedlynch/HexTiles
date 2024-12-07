@@ -120,8 +120,8 @@ public class GamePiece(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         }
         var tex = Game.Content.Load<Texture2D>("Graphics/" + FileName);
         // var destinationRect = new Rectangle((int)Position.X, (int)Position.Y, (int)_size.X, (int)_size.Y);
-        spriteBatch.Draw(tex, Bounds, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, DrawLayer.BoardContents);
-        
+        // spriteBatch.Draw(tex, Bounds, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, DrawLayer.BoardContents);
+        spriteBatch.DrawToLayer(tex, Bounds, LayerDepth);
         // base.Draw(gameTime);
     }
 

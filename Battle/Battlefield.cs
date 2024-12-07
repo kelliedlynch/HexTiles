@@ -5,17 +5,13 @@ using System.Net.Mime;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using HexTiles.Utility;
+using MonoGame.Extended.VectorDraw;
 
 namespace HexTiles;
 
-public class Battlefield(Game game) : ExtendedDrawableGameComponent(game)
+public class Battlefield(Game game, Rectangle bounds) : ExtendedDrawableGameComponent(game, bounds)
 {
-    // public List<Monster> Monsters = new();
-
     private readonly List<BattlefieldEntity> _monsters = new();
-    // private List<Rectangle> _monsterSpritePositions = new();
-    // private List<Texture2D> _monsterSpriteTextures = new();
-    // private List<UIBar> _monsterHealthBars = new();
     
     private IntVector2 MaxMonsterSize => new IntVector2(
         (Bounds.Width - Spacing * (_monsters.Count - 1)) / _monsters.Count,
@@ -25,18 +21,11 @@ public class Battlefield(Game game) : ExtendedDrawableGameComponent(game)
 
     public event Action<BattlefieldEntity> MonsterTouched;
     public event Action BattlefieldTouched;
-
-
-    public Battlefield(Game game, Rectangle bounds) : this(game)
-    {
-        Bounds = bounds;
-    }
     
     public override void Initialize()
     {
         var man = Game.Services.GetService<InputManager>();
-        man.TouchEventCompleted += OnTouchEventCompleted;
-        // base.Initialize();
+        man.TouchEventEnded += OnTouchEventEnded;
     }
     
     
@@ -46,26 +35,15 @@ public class Battlefield(Game game) : ExtendedDrawableGameComponent(game)
         var entity = new BattlefieldEntity(Game, monster);
         Game.Components.Add(entity);
         _monsters.Add(entity);
-        
-        // Monsters.Add(monster);
-        // var hpBar = new UIBar(game, Rectangle.Empty, monster.CurrentHitPoints, monster.MaxHitPoints);
-        // Game.Components.Add(hpBar);
-        // _monsterHealthBars.Add(hpBar);
+
         PlaceMonsters();
 
     }
 
-    // public void UpdateMonster(Monster monster)
-    // {
-    //     var entity = Monsters.FirstOrDefault(e => e.Monster == monster);
-    //     
-    // }
-
     public void PlaceMonsters()
     {
         int totalWidth = 0;
-        // _monsterSpriteTextures.Clear();
-        // _monsterSpritePositions.Clear();
+
         foreach (var monster in _monsters)
         {
             var sprite = monster.SpriteTexture;
@@ -77,8 +55,6 @@ public class Battlefield(Game game) : ExtendedDrawableGameComponent(game)
             var scaledHeight = (int)(sprite.Height * ratio);
             var spriteRect = new Rectangle(0, 0, scaledWidth, scaledHeight);
             monster.SpritePosition = spriteRect;
-            // _monsterSpritePositions.Add(spriteRect);
-            // _monsterSpriteTextures.Add(sprite);
             totalWidth += scaledWidth;
             
         }
@@ -91,18 +67,16 @@ public class Battlefield(Game game) : ExtendedDrawableGameComponent(game)
             var newPosition = new Rectangle(location.X, location.Y, monster.SpritePosition.Width, monster.SpritePosition.Height);
             monster.SetPosition(newPosition);
             currentX += Spacing + monster.SpritePosition.Width;
-            // _monsterHealthBars[i].Bounds = new Rectangle(
-            //     _monsterSpritePositions[i].Location, new Point(_monsterSpritePositions[i].Width, BarHeight));
         }
     }
 
-    public void OnTouchEventCompleted(TouchEventArgs args)
+    public override void OnTouchEventEnded(TouchEventArgs args)
     {
-        if (!Bounds.Contains(args.TouchUp)) return;
+        if (args.TouchUp is null || !Bounds.Contains((Point)args.TouchUp)) return;
         
         foreach (var monster in _monsters)
         {
-            if (!monster.SpritePosition.Contains(args.TouchUp)) continue;
+            if (!monster.SpritePosition.Contains((Point)args.TouchUp)) continue;
             MonsterTouched?.Invoke(monster);
             return;
         }
