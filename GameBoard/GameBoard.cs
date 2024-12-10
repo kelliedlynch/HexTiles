@@ -14,11 +14,14 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
     public readonly int Columns = 5;
 
     public readonly int Spacing = 10;
-    private GamePiece _selectedPiece;
+    private GamePiece SelectedPiece {get; set;}
     private readonly Bag<GamePiece> _movingPieces = [];
     public GamePiece[,] GamePieces;
-    public Rectangle[,] GamePieceRects;
-    public Rectangle[,] BoardLocationRects;
+
+    public GameBoardSpace[,] Spaces;
+    // public BoardSlot[,] Slots;
+    // public Rectangle[,] GamePieceRects;
+    // public Rectangle[,] BoardLocationRects;
     public IntVector2 TileSize;
     private readonly Random _random = new();
 
@@ -31,14 +34,18 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         GamePieces = new GamePiece[Columns, Rows];
         var man = Game.Services.GetService<InputManager>();
         man.RegisterComponent(this, new List<InputListeners>() { InputListeners.TouchEnded });
-        GridFactory.GenerateGrid(this);
+        Spaces = GameBoardFactory.GenerateGrid(this);
+        foreach (var space in Spaces)
+        {
+            Game.Components.Add(space);
+        }
     }
 
     private void SwapPieces(GamePiece piece1, GamePiece piece2)
     {
         SwapPositions(piece1, piece2);
-        MovePieceTo(piece1, GamePieceRects[piece1.GridPosition.X, piece1.GridPosition.Y].Location);
-        MovePieceTo(piece2, GamePieceRects[piece2.GridPosition.X, piece2.GridPosition.Y].Location);
+        MovePieceTo(piece1, Spaces[piece1.GridPosition.X, piece1.GridPosition.Y].GamePieceBounds.Location);
+        MovePieceTo(piece2, Spaces[piece2.GridPosition.X, piece2.GridPosition.Y].GamePieceBounds.Location);
     }
 
     private void SwapPositions(GamePiece piece1, GamePiece piece2)
@@ -83,7 +90,7 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         {
             for (int j = 0; j < Rows; j++)
             {
-                if (GamePieceRects[i, j].Contains(position))
+                if (HexMath.HexContains(Spaces[i, j].GamePieceBounds, position))
                 {
                     return GamePieces[i, j];
                 }
@@ -102,22 +109,22 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         if (endPiece.Selected)
         {
             endPiece.Selected = false;
-            _selectedPiece = null;
+            SelectedPiece = null;
             return;
         }
             
-        if (_selectedPiece is not null && _selectedPiece != endPiece)
+        if (SelectedPiece is not null && SelectedPiece != endPiece)
         {
-            SwapPieces(_selectedPiece, endPiece);
-            _selectedPiece.Selected = false;
+            SwapPieces(SelectedPiece, endPiece);
+            SelectedPiece.Selected = false;
             endPiece.Selected = false;
-            _selectedPiece = null;
+            SelectedPiece = null;
                 
             return;
         }
 
-        if (_selectedPiece is not null) return;
-        _selectedPiece = endPiece;
+        if (SelectedPiece is not null) return;
+        SelectedPiece = endPiece;
         endPiece.Selected = true;
     }
 
@@ -125,13 +132,13 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
 
     public override void Draw(GameTime gameTime)
     {
-        foreach (var rect in BoardLocationRects)
-        {
-            var tex = Game.Content.Load<Texture2D>("Graphics/" + "rune_slot");
-            var spriteBatch = Game.Services.GetService<SpriteBatch>();
-            spriteBatch.DrawToLayer(tex, rect, LayerDepth + DrawLayer.ObjectIncrement);
-        }
-        
+        // foreach (var rect in BoardLocationRects)
+        // {
+        //     var tex = Game.Content.Load<Texture2D>("Graphics/" + "rune_slot");
+        //     var spriteBatch = Game.Services.GetService<SpriteBatch>();
+        //     spriteBatch.DrawToLayer(tex, rect, LayerDepth + DrawLayer.ObjectIncrement);
+        // }
+        //
         base.Draw(gameTime);
     }
 }

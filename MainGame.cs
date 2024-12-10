@@ -84,7 +84,8 @@ public class MainGame : Game
         dock.Debug = true;
         Components.Add(dock);
         Services.AddService(dock);
-        inputManager.RegisterComponent(dock, new List<InputListeners>{InputListeners.TouchEnded});
+        inputManager.RegisterComponent(dock,
+            [InputListeners.TouchEnded, InputListeners.TouchBegan, InputListeners.TouchMoved]);
 
         var deck = new Deck(this);
         deck.GenerateDeck();
