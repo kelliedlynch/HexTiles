@@ -47,6 +47,7 @@ public static class GameBoardFactory
                 //     tileSize.X + spacing, tileSize.Y + (int)(spacing * float.Sqrt(3) ));
                 var space = new GameBoardSpace(board.Game, new Rectangle(xPos, yPos, spaceSize.X, spaceSize.Y));
                 space.LayerDepth = board.LayerDepth;
+                space.Padding = spacing;
                 spaces[i, j] = space;
                 // board.BoardLocationRects[i, j] = new Rectangle(xPos - spacing / 2, yPos - spacing / 2,
                 //     tileSize.X + spacing, tileSize.Y + spacing);

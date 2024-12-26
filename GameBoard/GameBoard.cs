@@ -1,9 +1,11 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using HexTiles.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.Collections;
 
 namespace HexTiles;
@@ -19,9 +21,7 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
     public GamePiece[,] GamePieces;
 
     public GameBoardSpace[,] Spaces;
-    // public BoardSlot[,] Slots;
-    // public Rectangle[,] GamePieceRects;
-    // public Rectangle[,] BoardLocationRects;
+
     public IntVector2 TileSize;
     private readonly Random _random = new();
 
@@ -64,6 +64,13 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         }
     }
 
+    public void AddToBoard(GamePiece piece, IntVector2? coords = null)
+    {
+        var c = coords ?? ScreenPositionToGridCoords(piece.Bounds.Center);
+        if (c is not { } gridCoords) throw new ArgumentOutOfRangeException(nameof(coords), "Couldn't find valid grid coords from screen position.");
+        GamePieces[gridCoords.X, gridCoords.Y] = piece;
+        piece.GridPosition = gridCoords;
+    }
     
     private void MovePieceTo(GamePiece piece, Point screenPosition)
     {
@@ -72,31 +79,29 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         piece.MoveCompleted += OnMoveCompleted;
     }
 
-    private GamePiece PieceAtGridPosition(IntVector2 location)
+    private GamePiece? PieceAtScreenPosition(Point position)
     {
-        try
+        var c = ScreenPositionToGridCoords(position);
+        if (c is { } coords)
         {
-            return GamePieces[location.X, location.Y];
+            return GamePieces[coords.X, coords.Y];
         }
-        catch 
-        {
-            return null; 
-        }
+        return null;
     }
 
-    private GamePiece PieceAtScreenPosition(Point position)
+    private IntVector2? ScreenPositionToGridCoords(Point position)
     {
+        // TODO: throw error if outside bounds
         for (int i = 0; i < Columns; i++)
         {
             for (int j = 0; j < Rows; j++)
             {
                 if (HexMath.HexContains(Spaces[i, j].GamePieceBounds, position))
                 {
-                    return GamePieces[i, j];
+                    return new IntVector2(i, j);
                 }
             }
         }
-
         return null;
     }
 
@@ -128,7 +133,18 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         endPiece.Selected = true;
     }
 
-
+    public override void Update(GameTime gameTime)
+    {
+        var mouse = Mouse.GetState();
+        if (Bounds.Contains(mouse.Position))
+        {
+            foreach (var space in Spaces)
+            {
+                space.Highlighted = HexMath.HexContains(space.Bounds, mouse.Position);
+            }
+        }
+        base.Update(gameTime);
+    }
 
     public override void Draw(GameTime gameTime)
     {

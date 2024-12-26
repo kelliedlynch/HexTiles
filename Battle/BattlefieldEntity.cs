@@ -48,7 +48,7 @@ public class BattlefieldEntity(Game game) : ExtendedDrawableGameComponent(game)
         {
             OutlineComponent();
         }
-        base.Draw(gameTime);
+        
     }
 
     public void OnHealthChanged()
