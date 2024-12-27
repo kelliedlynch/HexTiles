@@ -20,7 +20,7 @@ public static class GamePieceFactory
     public static GamePiece GenerateRandom(Game game, IntVector2 gridPosition)
     {
         var newPiece = GenerateRandom(game);
-        newPiece.GridPosition = gridPosition;
+        newPiece.GridCoords = gridPosition;
         return newPiece;
     }
 }

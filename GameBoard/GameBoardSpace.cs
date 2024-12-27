@@ -27,18 +27,17 @@ public class GameBoardSpace : ExtendedDrawableGameComponent
         (int)(Padding / float.Sqrt(3)),
         Bounds.Width - Padding, Bounds.Height - (int)(Padding / float.Sqrt(3)) * 2);
 
-    private readonly IntVector2 _targetingAreaSize;
+    private IntVector2 TargetingAreaSize => new IntVector2((int)(Bounds.Width / 1.5f), (int)(Bounds.Height / 1.5f));
 
     public GameBoardSpace(Game game, Rectangle bounds) : base(game, bounds)
     {
-        _targetingAreaSize = new IntVector2((int)(bounds.Width / 1.5f), (int)(bounds.Height / 1.5f));
         
     }
 
     public Rectangle TargetingArea => Bounds.GetRelativeRectangle(
-        Bounds.Width / 2 - _targetingAreaSize.X / 2,
-        Bounds.Height / 2 - _targetingAreaSize.Y / 2,
-        _targetingAreaSize.X, _targetingAreaSize.Y
+        Bounds.Width / 2 - TargetingAreaSize.X / 2,
+        Bounds.Height / 2 - TargetingAreaSize.Y / 2,
+        TargetingAreaSize.X, TargetingAreaSize.Y
     );
 
     public override void Draw(GameTime gameTime)

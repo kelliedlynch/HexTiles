@@ -5,7 +5,9 @@ using HexTiles.Utility;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using MonoGame.Extended.Input.InputListeners;
+using MonoGame.Extended.Tweening;
 using MonoGame.Extended.VectorDraw;
 
 namespace HexTiles;
@@ -38,13 +40,15 @@ public class MainGame : Game
         Components.Add(inputManager);
         Services.AddService(inputManager);
 
+        var tweener = new Tweener();
+        Services.AddService(tweener);
+
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
         var spriteBatch = new SpriteBatch(GraphicsDevice);
-        
         Services.AddService(spriteBatch);
 
 
@@ -119,7 +123,8 @@ public class MainGame : Game
             Exit();
 
         // TODO: Add your update logic here
-
+        var tween = Services.GetService<Tweener>();
+        tween.Update(gameTime.GetElapsedSeconds());
         base.Update(gameTime);
     }
 

@@ -16,7 +16,7 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
     public readonly int Columns = 5;
 
     public readonly int Spacing = 10;
-    private GamePiece SelectedPiece {get; set;}
+    private GamePiece? SelectedPiece {get; set;}
     private readonly Bag<GamePiece> _movingPieces = [];
     public GamePiece[,] GamePieces;
 
@@ -44,15 +44,15 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
     private void SwapPieces(GamePiece piece1, GamePiece piece2)
     {
         SwapPositions(piece1, piece2);
-        MovePieceTo(piece1, Spaces[piece1.GridPosition.X, piece1.GridPosition.Y].GamePieceBounds.Location);
-        MovePieceTo(piece2, Spaces[piece2.GridPosition.X, piece2.GridPosition.Y].GamePieceBounds.Location);
+        MovePieceTo(piece1, Spaces[piece1.GridCoords.X, piece1.GridCoords.Y].GamePieceBounds.Location);
+        MovePieceTo(piece2, Spaces[piece2.GridCoords.X, piece2.GridCoords.Y].GamePieceBounds.Location);
     }
 
     private void SwapPositions(GamePiece piece1, GamePiece piece2)
     {
-        (piece1.GridPosition, piece2.GridPosition) = (piece2.GridPosition, piece1.GridPosition);
-        GamePieces[piece1.GridPosition.X, piece1.GridPosition.Y] = piece1;
-        GamePieces[piece2.GridPosition.X, piece2.GridPosition.Y] = piece2;
+        (piece1.GridCoords, piece2.GridCoords) = (piece2.GridCoords, piece1.GridCoords);
+        GamePieces[piece1.GridCoords.X, piece1.GridCoords.Y] = piece1;
+        GamePieces[piece2.GridCoords.X, piece2.GridCoords.Y] = piece2;
     }
 
     private void OnMoveCompleted(GamePiece piece)
@@ -69,7 +69,7 @@ public class GameBoard(Game game, Rectangle bounds) : ExtendedDrawableGameCompon
         var c = coords ?? ScreenPositionToGridCoords(piece.Bounds.Center);
         if (c is not { } gridCoords) throw new ArgumentOutOfRangeException(nameof(coords), "Couldn't find valid grid coords from screen position.");
         GamePieces[gridCoords.X, gridCoords.Y] = piece;
-        piece.GridPosition = gridCoords;
+        piece.GridCoords = gridCoords;
     }
     
     private void MovePieceTo(GamePiece piece, Point screenPosition)

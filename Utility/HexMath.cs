@@ -26,4 +26,11 @@ public static class HexMath
         }
         return isInsideHex;
     }
+
+    public static Point ScaleBy(Point size, float factor)
+    {
+        var x = size.X + size.X * (factor / float.Sqrt(3));
+        var y = size.Y + size.Y * (factor * 0.75f);
+        return new Point((int)x, (int)y);
+    }
 }

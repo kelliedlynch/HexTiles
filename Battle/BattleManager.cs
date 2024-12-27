@@ -77,7 +77,7 @@ public class BattleManager(Game game, GameBoard board, Battlefield field) : Game
         foreach (var piece in set)
         {
             Game.Components.Remove(piece);
-            _board.GamePieces[piece.GridPosition.X, piece.GridPosition.Y] = null;
+            _board.GamePieces[piece.GridCoords.X, piece.GridCoords.Y] = null;
         }
     }
   
